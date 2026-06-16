@@ -1,35 +1,37 @@
 // components/LocationBox.js
 "use client";
 import { setLocationTerm } from "@/features/job/newJobSlice";
-import { useDispatch, useSelector } from "react-redux";
-import { useSearchParams } from "next/navigation";
+import { updateJobListUrlParam } from "@/utils/jobListUrlParams";
+import { useDispatch } from "react-redux";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const LocationBox = () => {
   const dispatch = useDispatch();
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const jobs = useSelector((state) => state.newJob.jobs);
-  const [locationValue, setLocationValue] = useState("");
+  const urlProvince = searchParams.get("province") || "";
+  const [locationValue, setLocationValue] = useState(urlProvince);
 
   useEffect(() => {
-    const urlProvince = searchParams.get("province");
-    if (urlProvince && jobs.length > 0) {
-      setLocationValue(urlProvince);
-      dispatch(setLocationTerm(urlProvince));
-    }
-  }, [searchParams, jobs, dispatch]);
+    setLocationValue(urlProvince);
+    dispatch(setLocationTerm(urlProvince));
+  }, [urlProvince, dispatch]);
 
   const handleLocationChange = (e) => {
     const value = e.target.value;
     setLocationValue(value);
     dispatch(setLocationTerm(value));
+    if (!value) {
+      updateJobListUrlParam(searchParams, router, "province", "");
+    }
   };
 
   return (
     <>
       <input
         type="text"
-        name="listing-search"
+        name="province"
         placeholder="Stad of postcode"
         value={locationValue}
         onChange={handleLocationChange}

@@ -1,33 +1,30 @@
 "use client";
 import { setSelectedCategory } from "@/features/job/newJobSlice";
 import { useSectors } from "@/utils/hooks/useOptionsFromFirebase";
-import { useDispatch, useSelector } from "react-redux";
-import { useSearchParams } from "next/navigation";
+import { updateJobListUrlParam } from "@/utils/jobListUrlParams";
+import { useDispatch } from "react-redux";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const Categories = () => {
   const dispatch = useDispatch();
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const selectedCategory = useSelector(
-    (state) => state.newJob.selectedCategory
-  );
-  const [categoryValue, setCategoryValue] = useState(selectedCategory || "");
+  const urlCategory = searchParams.get("category") || "";
+  const [categoryValue, setCategoryValue] = useState(urlCategory);
 
-  // Fetch sectors from Firebase
   const { options: sectors, loading: sectorsLoading } = useSectors();
 
   useEffect(() => {
-    const urlCategory = searchParams.get("category");
-    if (urlCategory) {
-      setCategoryValue(urlCategory);
-      dispatch(setSelectedCategory(urlCategory));
-    }
-  }, [searchParams, dispatch]);
+    setCategoryValue(urlCategory);
+    dispatch(setSelectedCategory(urlCategory));
+  }, [urlCategory, dispatch]);
 
   const handleCategoryChange = (e) => {
     const value = e.target.value;
     setCategoryValue(value);
     dispatch(setSelectedCategory(value));
+    updateJobListUrlParam(searchParams, router, "category", value);
   };
 
   return (

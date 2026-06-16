@@ -23,10 +23,12 @@ import {
   formatJobTypesDisplay,
   serializeFirestoreJob,
 } from '@/utils/constants';
+import { clearJobListFilters } from '@/utils/jobListUrlParams';
 import { useJobTypes } from '@/utils/hooks/useOptionsFromFirebase';
 import { errorToast, successToast } from '@/utils/toast';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { TbBookmark, TbBookmarkFilled } from 'react-icons/tb';
 import { useDispatch, useSelector } from 'react-redux';
@@ -36,6 +38,7 @@ import './jobList.css';
 import JobListSkeleton from './JobListSkeleton';
 
 const FilterJobBox = () => {
+  const router = useRouter();
   const { options: jobTypes } = useJobTypes();
   const selector = useSelector((store) => store.user);
   const [showModal, setShowModal] = useState(false);
@@ -341,6 +344,7 @@ const FilterJobBox = () => {
   const clearAll = () => {
     dispatch(clearAllFilters());
     dispatch(setSortOrder('')); // Reset sorting
+    clearJobListFilters(router);
   };
 
   // Per page handler
